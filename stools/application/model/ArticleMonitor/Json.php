@@ -155,7 +155,7 @@ class ArticleMonitor_Json extends Model {
 
 	private function _getLea() {
 		$title = $this->_view->translate( array( "analysis", "showAnalysis" ) );
-		$link = "http://tools.wmflabs.org/" . str_replace( "local-", "", $this->_view->getUserInfoObject( "name" ) ) .
+		$link = "http://tools.wmflabs.org/" . str_replace( "tools.", "", $this->_view->getUserInfoObject( "name" ) ) .
 			"/toolkit/LEA/index.php" .
 			"?submit=1&title=" . urlencode( $this->_articleInfo['page_title'] ) .
 			"&lg=" . $this->_lang . "&lang=" . $this->_lang;

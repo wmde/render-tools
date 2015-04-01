@@ -1,6 +1,4 @@
 <?php
-require_once( APP_PATH . 'gpClient.php' );
-
 class Alg_Model extends Model {
 	private $_serviceUrl;
 	
@@ -35,43 +33,17 @@ class Alg_Model extends Model {
 	}
 	
 	public function getGraphList() {
-		$result = array();
-		try {
-			$connInfo = $this->_getConnectionInfo();
-			$gp = gpConnection::new_client_connection( 
-					null, 
-					$connInfo["graphserv-host"], 
-					$connInfo["graphserv-port"] );
-			$gp->connect();
-			$runningGraphs = $gp->capture_list_graphs();
-			if ( is_array( $runningGraphs ) ) {
-				foreach( $runningGraphs as $graph ) {
-					if ( preg_match( "/wiki$/", $graph[0] ) ) {
-						$result[] = str_replace( "wiki", "", $graph[0] );
-					}
-				}
-			}
-			return $result;
-		} catch(gpException $ex) {
-			return false;
+		if( !defined( 'ALG_HOST_MAPPING_URL' ) ) {
+			return array();
 		}
-	}
-	
-	private function _getConnectionInfo() {
-		$defaultConnInfo = array(
-			"graphserv-host" => "sylvester",
-			"graphserv-port" => 6666
-		);
+
+		$hostmap = file_get_contents( ALG_HOST_MAPPING_URL );
+		$hosts = str_replace(
+			array( "wiki", "_ns14" ),
+			array( "", "" ),
+			array_keys( json_decode( $hostmap, true ) ) );
+		sort( $hosts );
 		
-		$result = @file_get_contents( ALG_SERVICE_URL_INTERNAL . "/tlgrc" );
-		if ( !$result ) {
-			return $defaultConnInfo;
-		}
-		
-		$connInfo = json_decode( $result, true );
-		if ( !$connInfo ) {
-			return $defaultConnInfo;
-		}
-		return $connInfo;
+		return array_unique( $hosts );
 	}
 }

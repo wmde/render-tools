@@ -10,10 +10,7 @@ class Alg_Model extends Model {
 		$url = ALG_SERVICE_URL_INTERNAL . "/tlgwsgi.py";
 		$url .= "?action=listflaws&i18n=" . $_SESSION['uilang'];
 
-		$options  = array( 'http' => array( 'user_agent' => 'RENDER Article List Generator' ) );
-		$context  = stream_context_create( $options );
-
-		$result = @file_get_contents( $url, false, $context );
+		$result = @file_get_contents( $url, false, $this->createStreamContext() );
 		
 		if ( $result ) {
 			$arrJson = json_decode( $result, true );
@@ -37,7 +34,7 @@ class Alg_Model extends Model {
 			return array();
 		}
 
-		$hostmap = file_get_contents( ALG_HOST_MAPPING_URL );
+		$hostmap = file_get_contents( ALG_HOST_MAPPING_URL, false, $this->createStreamContext() );
 		$hosts = str_replace(
 			array( "wiki", "_ns14" ),
 			array( "", "" ),
@@ -45,5 +42,11 @@ class Alg_Model extends Model {
 		sort( $hosts );
 		
 		return array_unique( $hosts );
+	}
+
+	private function createStreamContext() {
+		return stream_context_create(
+			array( 'http' => array(
+				'user_agent' => 'RENDER Article List Generator' ) ) );
 	}
 }
